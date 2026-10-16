@@ -1,8 +1,9 @@
 from datetime import datetime
 from functools import wraps
 
-from flask import (Blueprint, abort, flash, redirect, render_template,
-                   request, session, url_for)
+from flask import (Blueprint, abort, current_app, flash, redirect,
+                   render_template, request, send_from_directory, session,
+                   url_for)
 
 from src.db import get_db, now_str
 
@@ -109,3 +110,20 @@ def submissions(assignment_id):
     ).fetchall()
     return render_template('lecturer/submissions.html',
                            assignment=assignment, submissions=rows)
+
+
+# --- Step 3: download a submitted file --------------------------------------
+
+@bp.route('/submissions/<int:submission_id>/download')
+@lecturer_required
+def download_submission(submission_id):
+    row = get_db().execute(
+        'SELECT s.filename FROM submissions s '
+        'JOIN assignments a ON a.id = s.assignment_id '
+        'WHERE s.id = ? AND a.created_by = ?',
+        (submission_id, session['user_id']),
+    ).fetchone()
+    if row is None:
+        abort(404)
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'],
+                               row['filename'], as_attachment=True)

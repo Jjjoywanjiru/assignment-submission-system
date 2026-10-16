@@ -104,3 +104,33 @@ def test_lecturer_cannot_view_another_lecturers_submissions(
     login_as(other, 'lecturer')
     resp = client.get(f'/lecturer/assignments/{assignment_id}/submissions')
     assert resp.status_code == 404
+
+
+# --- Step 3: download -------------------------------------------------------
+
+def test_lecturer_can_download_submitted_file(
+        app, client, make_user, make_assignment, login_as):
+    assignment_id, lecturer_id = make_lecturer_assignment(app, make_assignment)
+    student_id, _ = make_user('student')
+    upload_dir = app.config['UPLOAD_FOLDER']
+    import os
+    os.makedirs(upload_dir, exist_ok=True)
+    with open(os.path.join(upload_dir, 'essay.txt'), 'w') as f:
+        f.write('hello lecturer')
+    sub_id = add_submission(app, assignment_id, student_id, 'essay.txt')
+    login_as(lecturer_id, 'lecturer')
+
+    resp = client.get(f'/lecturer/submissions/{sub_id}/download')
+    assert resp.status_code == 200
+    assert resp.data == b'hello lecturer'
+    assert 'attachment' in resp.headers['Content-Disposition']
+
+
+def test_lecturer_cannot_download_another_lecturers_file(
+        app, client, make_user, make_assignment, login_as):
+    assignment_id, _ = make_lecturer_assignment(app, make_assignment)
+    student_id, _ = make_user('student')
+    sub_id = add_submission(app, assignment_id, student_id, 'essay.txt')
+    other, _ = make_user('lecturer')
+    login_as(other, 'lecturer')
+    assert client.get(f'/lecturer/submissions/{sub_id}/download').status_code == 404

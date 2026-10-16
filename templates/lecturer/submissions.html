@@ -9,7 +9,7 @@
 
 <table class="table table-striped align-middle">
   <thead>
-    <tr><th>Student</th><th>Reg no.</th><th>File</th><th>Submitted</th><th>Timing</th></tr>
+    <tr><th>Student</th><th>Reg no.</th><th>File</th><th>Submitted</th><th>Timing</th><th></th></tr>
   </thead>
   <tbody>
   {% for s in submissions %}
@@ -25,9 +25,13 @@
         {% if s.is_late %}<span class="badge bg-danger">Late</span>
         {% else %}<span class="badge bg-success">On time</span>{% endif %}
       </td>
+      <td class="text-end">
+        <a class="btn btn-sm btn-outline-primary"
+           href="{{ url_for('lecturer.download_submission', submission_id=s.id) }}">Download</a>
+      </td>
     </tr>
   {% else %}
-    <tr><td colspan="5" class="text-center text-muted">No submissions yet.</td></tr>
+    <tr><td colspan="6" class="text-center text-muted">No submissions yet.</td></tr>
   {% endfor %}
   </tbody>
 </table>
