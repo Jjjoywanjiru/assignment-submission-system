@@ -8,7 +8,7 @@
 
 <table class="table table-striped align-middle">
   <thead>
-    <tr><th>Title</th><th>Deadline</th><th>Submissions</th></tr>
+    <tr><th>Title</th><th>Deadline</th><th>Submissions</th><th></th></tr>
   </thead>
   <tbody>
   {% for a in assignments %}
@@ -16,9 +16,13 @@
       <td>{{ a.title }}</td>
       <td>{{ a.deadline|replace('T', ' ') }}</td>
       <td>{{ a.submission_count }}</td>
+      <td class="text-end">
+        <a class="btn btn-sm btn-outline-primary"
+           href="{{ url_for('lecturer.submissions', assignment_id=a.id) }}">View submissions</a>
+      </td>
     </tr>
   {% else %}
-    <tr><td colspan="3" class="text-center text-muted">You haven't created any assignments yet.</td></tr>
+    <tr><td colspan="4" class="text-center text-muted">You haven't created any assignments yet.</td></tr>
   {% endfor %}
   </tbody>
 </table>

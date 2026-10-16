@@ -65,3 +65,42 @@ def test_lecturer_only_sees_their_own_assignments(
     page = client.get('/lecturer/assignments').get_data(as_text=True)
     assert 'Mine' in page
     assert 'Someone elses' not in page
+
+
+# --- Step 2: view submissions -----------------------------------------------
+
+def add_submission(app, assignment_id, student_id, filename='work.pdf',
+                   submitted_at='2026-01-01T09:00'):
+    with app.app_context():
+        db = get_db()
+        cur = db.execute(
+            'INSERT INTO submissions '
+            '(assignment_id, student_id, filename, submitted_at) VALUES (?, ?, ?, ?)',
+            (assignment_id, student_id, filename, submitted_at))
+        db.commit()
+        return cur.lastrowid
+
+
+def test_lecturer_sees_submissions_with_late_flag(
+        app, client, make_user, make_assignment, login_as):
+    assignment_id, lecturer_id = make_lecturer_assignment(app, make_assignment)
+    on_time, _ = make_user('student')
+    late, _ = make_user('student')
+    add_submission(app, assignment_id, on_time, 'ontime.pdf', '2000-01-01T09:00')
+    add_submission(app, assignment_id, late, 'late.pdf', '2999-01-01T09:00')
+    login_as(lecturer_id, 'lecturer')
+
+    page = client.get(f'/lecturer/assignments/{assignment_id}/submissions')
+    html = page.get_data(as_text=True)
+    assert page.status_code == 200
+    assert 'ontime.pdf' in html and 'late.pdf' in html
+    assert 'On time' in html and 'Late' in html
+
+
+def test_lecturer_cannot_view_another_lecturers_submissions(
+        app, client, make_user, make_assignment, login_as):
+    assignment_id, _ = make_lecturer_assignment(app, make_assignment)
+    other, _ = make_user('lecturer')
+    login_as(other, 'lecturer')
+    resp = client.get(f'/lecturer/assignments/{assignment_id}/submissions')
+    assert resp.status_code == 404

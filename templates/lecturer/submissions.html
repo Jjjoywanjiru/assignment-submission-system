@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Submissions{% endblock %}
+{% block content %}
+<h2>{{ assignment.title }}</h2>
+<p class="text-muted">
+  Deadline: {{ assignment.deadline|replace('T', ' ') }}
+  &middot; {{ submissions|length }} submission{{ '' if submissions|length == 1 else 's' }}
+</p>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr><th>Student</th><th>Reg no.</th><th>File</th><th>Submitted</th><th>Timing</th></tr>
+  </thead>
+  <tbody>
+  {% for s in submissions %}
+    <tr>
+      <td>{{ s.full_name }}<br><small class="text-muted">{{ s.email }}</small></td>
+      <td>{{ s.reg_no or '-' }}</td>
+      <td>{{ s.filename }}</td>
+      <td>
+        {{ s.submitted_at|replace('T', ' ') }}
+        {% if s.updated_at %}<br><small class="text-muted">edited {{ s.updated_at|replace('T', ' ') }}</small>{% endif %}
+      </td>
+      <td>
+        {% if s.is_late %}<span class="badge bg-danger">Late</span>
+        {% else %}<span class="badge bg-success">On time</span>{% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="text-center text-muted">No submissions yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<a href="{{ url_for('lecturer.assignments') }}">&larr; Back to assignments</a>
+{% endblock %}

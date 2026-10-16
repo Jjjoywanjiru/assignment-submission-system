@@ -78,3 +78,34 @@ def new_assignment():
         return redirect(url_for('lecturer.assignments'))
 
     return render_template('lecturer/new_assignment.html', form={})
+
+
+# --- Step 2: view an assignment's submissions -------------------------------
+
+def get_own_assignment(assignment_id):
+    """Fetch an assignment, but only if the logged-in lecturer created it."""
+    assignment = get_db().execute(
+        'SELECT * FROM assignments WHERE id = ? AND created_by = ?',
+        (assignment_id, session['user_id']),
+    ).fetchone()
+    if assignment is None:
+        abort(404)
+    return assignment
+
+
+@bp.route('/assignments/<int:assignment_id>/submissions')
+@lecturer_required
+def submissions(assignment_id):
+    assignment = get_own_assignment(assignment_id)
+    rows = get_db().execute(
+        'SELECT s.*, u.full_name, u.email, u.reg_no, '
+        '       (s.submitted_at > a.deadline) AS is_late '
+        'FROM submissions s '
+        'JOIN users u ON u.id = s.student_id '
+        'JOIN assignments a ON a.id = s.assignment_id '
+        'WHERE s.assignment_id = ? '
+        'ORDER BY s.submitted_at',
+        (assignment_id,),
+    ).fetchall()
+    return render_template('lecturer/submissions.html',
+                           assignment=assignment, submissions=rows)
