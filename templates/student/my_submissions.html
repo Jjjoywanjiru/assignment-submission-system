@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}My submissions{% endblock %}
+{% block content %}
+<h2>My submissions</h2>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr><th>Assignment</th><th>Deadline</th><th>Submitted</th><th>Timing</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+  {% for s in submissions %}
+    <tr>
+      <td>{{ s.title }}{% if s.comment %}<br><small class="text-muted">{{ s.comment }}</small>{% endif %}</td>
+      <td>{{ s.deadline|replace('T', ' ') }}</td>
+      <td>
+        {{ s.submitted_at|replace('T', ' ') }}
+        {% if s.updated_at %}<br><small class="text-muted">edited {{ s.updated_at|replace('T', ' ') }}</small>{% endif %}
+      </td>
+      <td>
+        {% if s.is_late %}<span class="badge bg-danger">Late</span>
+        {% else %}<span class="badge bg-success">On time</span>{% endif %}
+      </td>
+      <td>{{ s.status }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="text-center text-muted">
+      You have not submitted anything yet.
+      <a href="{{ url_for('student.assignments') }}">See assignments</a>
+    </td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

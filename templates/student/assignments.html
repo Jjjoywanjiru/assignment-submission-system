@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Assignments{% endblock %}
+{% block content %}
+<h2>Available assignments</h2>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr><th>Title</th><th>Lecturer</th><th>Deadline</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for a in assignments %}
+    <tr>
+      <td>{{ a.title }}<br><small class="text-muted">{{ a.description }}</small></td>
+      <td>{{ a.lecturer_name }}</td>
+      <td>
+        {{ a.deadline|replace('T', ' ') }}
+        {% if a.deadline < now and not a.submission_id %}
+          <br><span class="badge bg-warning text-dark">Deadline passed</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if a.submission_id %}
+          {% if a.status == 'Late' %}<span class="badge bg-danger">Submitted late</span>
+          {% else %}<span class="badge bg-success">{{ a.status }}</span>{% endif %}
+        {% else %}
+          <span class="badge bg-secondary">Not submitted</span>
+        {% endif %}
+      </td>
+      <td class="text-end">
+        {% if not a.submission_id %}
+          <a class="btn btn-sm btn-primary"
+             href="{{ url_for('student.submit', assignment_id=a.id) }}">Submit</a>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="text-center text-muted">No assignments available.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
