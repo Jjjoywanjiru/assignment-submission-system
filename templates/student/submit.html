@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Submit {{ assignment.title }}{% endblock %}
+{% block content %}
+<h2>{{ assignment.title }}</h2>
+<p>{{ assignment.description }}</p>
+<p class="text-muted">Deadline: {{ assignment.deadline|replace('T', ' ') }}</p>
+{% if assignment.deadline < now %}
+  <div class="alert alert-warning">
+    The deadline has passed. You can still submit, but it will be marked <strong>late</strong>.
+  </div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="col-md-6">
+  <div class="mb-3">
+    <label for="file" class="form-label">File</label>
+    <input type="file" class="form-control" id="file" name="file" required>
+    <div class="form-text">Max 10 MB. PDF, Word, text, zip, code or images.</div>
+  </div>
+  <div class="mb-3">
+    <label for="comment" class="form-label">Comment (optional)</label>
+    <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Upload</button>
+  <a href="{{ url_for('student.assignments') }}" class="btn btn-link">Cancel</a>
+</form>
+{% endblock %}
