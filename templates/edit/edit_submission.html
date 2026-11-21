@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Edit submission{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 640px;">
+  <h2 class="h4">Edit submission: {{ submission.title }}</h2>
+  <p class="text-muted mb-1">Deadline: {{ submission.deadline.replace('T', ' ') }}</p>
+  <p class="mb-3">
+    Current file: <strong>{{ submission.filename }}</strong><br>
+    <small class="text-muted">
+      Submitted: {{ submission.submitted_at.replace('T', ' ') }}
+      {% if submission.updated_at %}
+        &middot; Last edited: {{ submission.updated_at.replace('T', ' ') }}
+      {% endif %}
+    </small>
+  </p>
+
+  {% if locked %}
+    <div class="alert alert-warning">
+      The deadline has passed, so this submission can no longer be edited.
+    </div>
+  {% else %}
+    <form method="post" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="file" class="form-label">Replace file (optional)</label>
+        <input class="form-control" type="file" id="file" name="file">
+        <div class="form-text">Leave empty to keep your current file.</div>
+      </div>
+      <div class="mb-3">
+        <label for="comment" class="form-label">Comment (optional)</label>
+        <textarea class="form-control" id="comment" name="comment" rows="3">{{ submission.comment or '' }}</textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Save changes</button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}
