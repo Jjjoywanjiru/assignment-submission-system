@@ -7,7 +7,7 @@
 | Type | New feature, low risk |
 | Branches | `edit-submission` (route and tests), `edit-link` (Edit button) |
 | Requirements | FR-9, FR-10, FR-11 in [requirements.md](../requirements.md) |
-| Approver | ______________________ (team lead) |
+| Approver | ______________________ (Joy Wanjiru) |
 
 ## Why
 
