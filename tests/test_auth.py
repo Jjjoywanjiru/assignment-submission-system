@@ -39,3 +39,53 @@ def test_home_redirects_to_login_when_logged_out(client):
     response = client.get('/')
     assert response.status_code == 302
     assert response.headers['Location'].endswith('/login')
+
+
+def test_login_page_offers_student_and_lecturer(client):
+    response = client.get('/login')
+    assert b'value="student"' in response.data
+    assert b'value="lecturer"' in response.data
+
+
+def test_lecturer_can_log_in_as_lecturer(client, make_user):
+    _, email = make_user('lecturer')
+    response = client.post('/login', data={
+        'email': email, 'password': 'secret123', 'role': 'lecturer'})
+    assert response.status_code == 302
+    with client.session_transaction() as sess:
+        assert sess['role'] == 'lecturer'
+
+
+def test_lecturer_lands_on_lecturer_page(client, make_user):
+    _, email = make_user('lecturer')
+    response = client.post('/login', data={
+        'email': email, 'password': 'secret123', 'role': 'lecturer'},
+        follow_redirects=True)
+    assert response.request.path == '/lecturer/assignments'
+
+
+def test_lecturer_account_rejected_on_student_login(client, make_user):
+    _, email = make_user('lecturer')
+    response = client.post('/login', data={
+        'email': email, 'password': 'secret123', 'role': 'student'})
+    assert b'not a student account' in response.data
+    with client.session_transaction() as sess:
+        assert 'user_id' not in sess
+
+
+def test_student_account_rejected_on_lecturer_login(client, make_user):
+    _, email = make_user('student')
+    response = client.post('/login', data={
+        'email': email, 'password': 'secret123', 'role': 'lecturer'})
+    assert b'not a lecturer account' in response.data
+    with client.session_transaction() as sess:
+        assert 'user_id' not in sess
+
+
+def test_student_can_log_in_as_student(client, make_user):
+    _, email = make_user('student')
+    response = client.post('/login', data={
+        'email': email, 'password': 'secret123', 'role': 'student'})
+    assert response.status_code == 302
+    with client.session_transaction() as sess:
+        assert sess['role'] == 'student'
