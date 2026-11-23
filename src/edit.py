@@ -39,7 +39,7 @@ def edit_submission(submission_id):
         abort(404)
 
     # Deadline passed: show the page locked, with no form.
-    if is_late(submission['deadline'], now_str()):
+    if is_late(now_str(), submission['deadline']):
         return render_template('edit/edit_submission.html',
                                submission=submission, locked=True), 403
 
