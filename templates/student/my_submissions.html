@@ -5,7 +5,7 @@
 
 <table class="table table-striped align-middle">
   <thead>
-    <tr><th>Assignment</th><th>Deadline</th><th>Submitted</th><th>Timing</th><th>Status</th></tr>
+    <tr><th>Assignment</th><th>Deadline</th><th>Submitted</th><th>Timing</th><th>Status</th><th></th></tr>
   </thead>
   <tbody>
   {% for s in submissions %}
@@ -21,9 +21,15 @@
         {% else %}<span class="badge bg-success">On time</span>{% endif %}
       </td>
       <td>{{ s.status }}</td>
+      <td class="text-end">
+        {% if s.deadline >= now %}
+          <a class="btn btn-sm btn-outline-primary"
+             href="{{ url_for('edit.edit_submission', submission_id=s.id) }}">Edit</a>
+        {% endif %}
+      </td>
     </tr>
   {% else %}
-    <tr><td colspan="5" class="text-center text-muted">
+    <tr><td colspan="6" class="text-center text-muted">
       You have not submitted anything yet.
       <a href="{{ url_for('student.assignments') }}">See assignments</a>
     </td></tr>

@@ -134,4 +134,5 @@ def my_submissions():
         'ORDER BY s.submitted_at DESC',
         (session['user_id'],),
     ).fetchall()
-    return render_template('student/my_submissions.html', submissions=rows)
+    return render_template('student/my_submissions.html',
+                           submissions=rows, now=now_str())
