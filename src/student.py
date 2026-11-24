@@ -80,7 +80,7 @@ def submit(assignment_id):
         return redirect(url_for('student.my_submissions'))
 
     if request.method == 'POST':
-        file = request.files.get('file')
+        file = request.files.get('filee')
         comment = request.form.get('comment', '').strip()
 
         error = None
