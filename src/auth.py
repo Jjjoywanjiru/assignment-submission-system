@@ -63,10 +63,14 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password', '')
+        chosen_role = request.form.get('role')
         user = get_db().execute(
             'SELECT * FROM users WHERE email = ?', (email,)).fetchone()
         if user is None or not check_password_hash(user['password_hash'], password):
             flash('Incorrect email or password.')
+        elif chosen_role in ('student', 'lecturer') and user['role'] != chosen_role:
+            flash(f'This is not a {chosen_role} account. '
+                  'Please choose the correct login type.')
         else:
             session.clear()
             session['user_id'] = user['id']
